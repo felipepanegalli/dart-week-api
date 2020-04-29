@@ -15,4 +15,4 @@ class UserAPIView(APIView):
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'message': 'Usuário realizado com sucesso.'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Usuário cadastrado com sucesso.'}, status=status.HTTP_201_CREATED)

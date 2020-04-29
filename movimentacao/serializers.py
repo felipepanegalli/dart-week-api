@@ -11,8 +11,9 @@ class CategoriaSerializer(serializers.ModelSerializer):
 
 
 class MovimentacaoSerializer(serializers.ModelSerializer):
-    # categorias = CategoriaSerializer(many=False, read_only=True)
-    # usuarios = UserSerializer(many=False, read_only=True)
+    categoria_id = CategoriaSerializer(many=False, read_only=True)
+    usuario_id = UserSerializer(many=False, write_only=True)
+    valor = serializers.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
         model = Movimentacao

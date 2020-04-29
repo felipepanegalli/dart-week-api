@@ -11,18 +11,21 @@ class MovimentacaoByAnoMesTotalAPIView(APIView):
     """
     API de Movimentação de Conta Total por Ano e Mês
     """
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, mes=None, ano=None):
-        movimentacao = Movimentacao.objects.filter(datamovimentacao__month=mes, datamovimentacao__year=ano)
-        receita = movimentacao.filter(categoria_id__tipocategoria='receita').aggregate(Sum('valor'))
+        movimentacao = Movimentacao.objects.filter(datamovimentacao__month=mes, datamovimentacao__year=ano,
+                                                   usuario_id=self.request.user.id)
+        receita = movimentacao.filter(categoria_id__tipocategoria='receita',
+                                      usuario_id=self.request.user.id).aggregate(Sum('valor'))
         receita = receita['valor__sum'] or 0
-        despesa = movimentacao.filter(categoria_id__tipocategoria='despesa').aggregate(Sum('valor'))
+        despesa = movimentacao.filter(categoria_id__tipocategoria='despesa',
+                                      usuario_id=self.request.user.id).aggregate(Sum('valor'))
         despesa = despesa['valor__sum'] or 0
         total = receita + despesa
         saldo = receita - despesa
 
-        return Response({'receitas': receita, 'despesas': despesa, 'total': total, 'saldo': saldo},
+        return Response([{'receitas': receita, 'despesas': despesa, 'total': total, 'saldo': saldo}],
                         status=status.HTTP_200_OK)
 
 
@@ -30,7 +33,7 @@ class CategoriasAPIView(generics.ListCreateAPIView):
     """
     API de Categorias de movimentação
     """
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
 
@@ -50,8 +53,10 @@ class MovimentacaoAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.kwargs.get('tipo'):
-            return self.queryset.filter(categoria_id__tipocategoria=self.kwargs.get('tipo'))
+            return self.queryset.filter(categoria_id__tipocategoria=self.kwargs.get('tipo'),
+                                        usuario_id=self.request.user.id)
         if self.kwargs.get('mes') and self.kwargs.get('ano'):
             return self.queryset.filter(datamovimentacao__month=self.kwargs.get('mes'),
-                                        datamovimentacao__year=self.kwargs.get('ano'))
-        return self.queryset.all()
+                                        datamovimentacao__year=self.kwargs.get('ano'),
+                                        usuario_id=self.request.user.id)
+        return self.queryset.filter(usuario_id=self.request.user.id).all()
