@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
-    is_active = serializers.BooleanField(default=True)
+    is_active = serializers.BooleanField(default=True, write_only=True)
     password = serializers.CharField(write_only=True)
 
     class Meta:

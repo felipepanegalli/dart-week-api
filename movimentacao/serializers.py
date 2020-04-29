@@ -11,21 +11,15 @@ class CategoriaSerializer(serializers.ModelSerializer):
 
 
 class MovimentacaoSerializer(serializers.ModelSerializer):
-    categoria_id = CategoriaSerializer(many=False, read_only=True)
-    usuario_id = UserSerializer(many=False, write_only=True)
-    valor = serializers.DecimalField(max_digits=12, decimal_places=2)
+    categoria_id = CategoriaSerializer(many=False)
+    usuario_id = UserSerializer(many=False, read_only=True)
 
     class Meta:
         model = Movimentacao
         fields = ('id', 'valor', 'descricao', 'datamovimentacao', 'categoria_id', 'usuario_id')
 
-    def create(self, validated_data):
-        movimentacao = Movimentacao(
-            valor=validated_data['valor'],
-            descricao=validated_data['descricao'],
-            datamovimentacao=validated_data['datamovimentacao'],
-            categoria_id=validated_data['categoria_id'],
-            usuario_id=validated_data['usuario_id'],
-        )
-        movimentacao.save()
-        return movimentacao
+
+class MovimentacaoPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movimentacao
+        fields = ('id', 'valor', 'descricao', 'datamovimentacao', 'categoria_id', 'usuario_id')
